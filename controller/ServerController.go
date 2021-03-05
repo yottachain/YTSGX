@@ -51,8 +51,8 @@ func write(directory, fileName string) {
 }
 
 func read(directory, fileName string) {
-	directory = "/root/mnt/tmp/"
-	fileName = "test2.txt"
+	// directory = "/root/mnt/tmp/"
+	// fileName = "test.txt"
 	if !strings.HasSuffix(directory, "/") {
 		directory = directory + "/"
 	}
