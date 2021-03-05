@@ -3,7 +3,7 @@ package routers
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/yottachain/YTSGX.git/controller"
+	"github.com/yottachain/YTSGX/controller"
 )
 
 //InitRouter 初始化路由

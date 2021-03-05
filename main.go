@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"github.com/yottachain/YTSGX.git/routers"
+	"github.com/yottachain/YTSGX/routers"
 )
 
 func main() {

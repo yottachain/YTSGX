@@ -9,7 +9,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/yottachain/YTSGX.git/env"
+	"github.com/yottachain/YTSGX/env"
 )
 
 const AR_DB_MODE = 0
