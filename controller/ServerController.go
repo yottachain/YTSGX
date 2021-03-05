@@ -15,7 +15,7 @@ func GetInfo(g *gin.Context) {
 	directory := "/root/mnt/tmp/"
 	fileName := "test3.txt"
 
-	write(directory, fileName)
+	// write(directory, fileName)
 	read(directory, fileName)
 
 }
