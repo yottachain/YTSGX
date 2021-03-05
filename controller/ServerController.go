@@ -114,7 +114,7 @@ func read(directory, fileName string) {
 	}
 	fmt.Println("bytes read: ", bytesread)
 
-	key := []byte("hgfedcba876543211")
+	key := []byte("hgfedcba87654321")
 	x2 := decryptAES(buffer, key)
 	fmt.Println("bytestream to string: ", string(x2))
 }
