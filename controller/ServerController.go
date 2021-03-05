@@ -12,7 +12,7 @@ import (
 //GetInfo test demo
 func GetInfo(g *gin.Context) {
 
-	directory := "c:/mnt/tmp/"
+	directory := "/root/mnt/tmp/"
 	fileName := "test2.txt"
 	s, err := os.Stat(directory)
 	if err != nil {
