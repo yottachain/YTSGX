@@ -1,4 +1,4 @@
-module github.com/yottachain/YTSGX.git
+module github.com/yottachain/YTSGX
 
 go 1.14
 
