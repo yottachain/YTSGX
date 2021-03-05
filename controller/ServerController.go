@@ -14,6 +14,11 @@ func GetInfo(g *gin.Context) {
 
 	directory := "/root/mnt/tmp/"
 	fileName := "test2.txt"
+	read(directory, fileName)
+
+}
+
+func write(directory, fileName string) {
 	s, err := os.Stat(directory)
 	if err != nil {
 		if !os.IsExist(err) {
@@ -41,11 +46,15 @@ func GetInfo(g *gin.Context) {
 	defer f.Close()
 
 	f.Write([]byte("黄河之水天上来，奔流到海不复回。\r\n"))
-	read(filePath)
-
 }
 
-func read(path string) {
+func read(directory, fileName string) {
+	directory = "/root/mnt/tmp/"
+	fileName = "test2.txt"
+	if !strings.HasSuffix(directory, "/") {
+		directory = directory + "/"
+	}
+	path := directory + fileName
 	file, err := os.Open(path)
 	if err != nil {
 		fmt.Println(err)
