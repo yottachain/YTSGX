@@ -13,7 +13,9 @@ import (
 func GetInfo(g *gin.Context) {
 
 	directory := "/root/mnt/tmp/"
-	fileName := "test2.txt"
+	fileName := "test3.txt"
+
+	write(directory, fileName)
 	read(directory, fileName)
 
 }
