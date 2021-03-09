@@ -188,6 +188,7 @@ func DownloadFileForSGX(g *gin.Context) {
 		} else {
 			if len(data) > 0 {
 				write.Write(data)
+				blockNum++
 			} else {
 				blockNum = -1
 			}
