@@ -13,7 +13,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/yottachain/YTSGX/s3server"
 	"github.com/yottachain/YTSGX/tools"
 )
 
@@ -25,29 +24,43 @@ func AddUser(g *gin.Context) {
 	priKey := "5KcTgaryRNpRhQ33NYMkHDVzGSyXF35hYXKR34aZkNhzU2S1iBK"
 	pubKey := "8fYbPL1vD3RZjFDhax7bruKymvTvrXUzY7FSCa4Qjfs9NQy2aR"
 	userName := "yottanewsabc"
-	num, err := s3server.AddKey(userName, pubKey)
+	// num, err := s3server.AddKey(userName, pubKey)
 
+	// if err != nil {
+
+	// } else {
+	// 	user := tools.User{
+	// 		UserName:   userName,
+	// 		Num:        num,
+	// 		PrivateKey: priKey,
+	// 		PublicKey:  pubKey,
+	// 	}
+
+	// 	data, err := json.Marshal(user)
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+
+	// 	tools.UserWrite(data)
+	// }
+
+	user := tools.User{
+		UserName:   userName,
+		Num:        num,
+		PrivateKey: priKey,
+		PublicKey:  pubKey,
+	}
+	data, err := json.Marshal(user)
 	if err != nil {
-
-	} else {
-		user := tools.User{
-			UserName:   userName,
-			Num:        num,
-			PrivateKey: priKey,
-			PublicKey:  pubKey,
-		}
-
-		data, err := json.Marshal(user)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		tools.UserWrite(data)
+		log.Fatal(err)
 	}
 
-	data := tools.ReadUserInfo()
+	tools.UserWrite(data)
+
+	//读 user JSON文件
+	data1 := tools.ReadUserInfo()
 	var uu tools.User
-	uu = tools.UserUnmarshal(data)
+	uu = tools.UserUnmarshal(data1)
 
 	g.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "priKey:": uu.PrivateKey + ",pubKey:" + uu.PublicKey})
 
