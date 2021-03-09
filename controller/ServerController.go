@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/yottachain/YTSGX/s3server"
 	"github.com/yottachain/YTSGX/tools"
 )
 
@@ -160,4 +162,60 @@ func read(directory, fileName string) {
 	key := []byte("hgfedcba87654321")
 	x2 := decryptAES(buffer, key)
 	fmt.Println("bytestream to string: ", string(x2))
+}
+
+func DownloadFileForSGX(g *gin.Context) {
+	publicKey := "YTA5Y1JnrZDziiFeGhcBBUW8JJZWHvw2K96AGsgcdZbPWb2PKXyov"
+	bucketName := "test"
+	fileName := "aa1"
+	var blockNum int
+	blockNum = 0
+
+	directory := "./storage/" + bucketName
+	filePath := createDirectory(directory, fileName)
+
+	f, err := os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	write := bufio.NewWriter(f)
+
+	for blockNum != -1 {
+		data, err := s3server.DownBlock(publicKey, bucketName, fileName, blockNum)
+		if err != nil {
+
+		} else {
+			if len(data) > 0 {
+				write.Write(data)
+			} else {
+				blockNum = -1
+			}
+		}
+	}
+
+}
+
+func createDirectory(directory, fileName string) string {
+	s, err := os.Stat(directory)
+	if err != nil {
+		if !os.IsExist(err) {
+			err = os.MkdirAll(directory, os.ModePerm)
+			if err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			log.Fatal(err)
+		}
+	} else {
+		if !s.IsDir() {
+			// logrus.Errorf("err:%s\n", "The specified path is not a directory.")
+		}
+	}
+	if !strings.HasSuffix(directory, "/") {
+		directory = directory + "/"
+	}
+	filePath := directory + fileName
+
+	return filePath
 }

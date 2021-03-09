@@ -17,7 +17,8 @@ func InitRouter() (router *gin.Engine) {
 	v1 := router.Group("/api/v1")
 	{
 		v1.GET("/addUser", controller.AddUser)
-		v1.GET("/upload", controller.UploadFile)
+		v1.GET("/getObject", controller.DownloadFileForSGX)
+		// v1.GET("/upload", controller.UploadFile)
 
 	}
 
