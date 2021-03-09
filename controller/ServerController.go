@@ -4,22 +4,52 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
 	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
+
+	"github.com/yottachain/YTSGX/s3server"
+	"github.com/yottachain/YTSGX/tools"
 )
 
 //GetInfo test demo
-func GetInfo(g *gin.Context) {
+func AddUser(g *gin.Context) {
+	var num uint32
 
-	directory := "/root/mnt/tmp/"
-	fileName := "test3.txt"
+	// priKey, pubKey := tools.CreateKey()
+	priKey := "5KcTgaryRNpRhQ33NYMkHDVzGSyXF35hYXKR34aZkNhzU2S1iBK"
+	pubKey := "8fYbPL1vD3RZjFDhax7bruKymvTvrXUzY7FSCa4Qjfs9NQy2aR"
+	userName := "yottanewsabc"
+	num, err := s3server.AddKey(userName, pubKey)
 
-	write(directory, fileName)
-	read(directory, fileName)
+	if err != nil {
+
+	} else {
+		user := tools.User{
+			UserName:   userName,
+			Num:        num,
+			PrivateKey: priKey,
+			PublicKey:  pubKey,
+		}
+
+		data, err := json.Marshal(user)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		tools.UserWrite(data)
+	}
+
+	data := tools.ReadUserInfo()
+	var uu tools.User
+	uu = tools.UserUnmarshal(data)
+
+	g.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "priKey:": uu.PrivateKey + ",pubKey:" + uu.PublicKey})
 
 }
 
@@ -29,24 +59,24 @@ func write(directory, fileName string) {
 		if !os.IsExist(err) {
 			err = os.MkdirAll(directory, os.ModePerm)
 			if err != nil {
-				logrus.Errorf("err:%s\n", err)
+				log.Fatal(err)
 			}
 		} else {
-			logrus.Errorf("err:%s\n", err)
+			log.Fatal(err)
 		}
 	} else {
 		if !s.IsDir() {
-			logrus.Errorf("err:%s\n", "The specified path is not a directory.")
+			// logrus.Errorf("err:%s\n", "The specified path is not a directory.")
 		}
 	}
 	if !strings.HasSuffix(directory, "/") {
 		directory = directory + "/"
 	}
 	filePath := directory + fileName
-	logrus.Infof("file directory:%s\n", directory)
+	// logrus.Infof("file directory:%s\n", directory)
 	f, err := os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 	if err != nil {
-		logrus.Errorf("err:%s\n", err)
+		log.Fatal(err)
 	}
 	defer f.Close()
 

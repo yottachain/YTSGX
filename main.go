@@ -6,11 +6,14 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"github.com/yottachain/YTSGX/routers"
 )
 
 func main() {
+
+	gin.SetMode(gin.DebugMode)
 	logrus.Infof(time.Now().Format("2006-01-02 15:04:05") + "strart ......")
 	flag.Parse()
 
