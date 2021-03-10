@@ -1,17 +1,29 @@
 package s3server
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"net/http/cookiejar"
 )
 
 func AddKey(username, pubKey string) (uint32, error) {
 	var num uint32
 
-	url := "https://47.115.114.243:8080/api/v1/addPubKey?pubkey=" + pubKey + "&username=" + username
+	url := "https://localhost:8080/api/v1/addPubkey?publicKey=" + pubKey + "&userName=" + username
 
-	resp, err := http.Get(url)
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	//http cookie接口
+	cookieJar, _ := cookiejar.New(nil)
+	c := &http.Client{
+		Jar:       cookieJar,
+		Transport: tr,
+	}
+
+	resp, err := c.Get(url)
 	if err != nil {
 
 	}

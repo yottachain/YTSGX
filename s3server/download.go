@@ -1,25 +1,38 @@
 package s3server
 
 import (
+	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strconv"
+	"net/http/cookiejar"
 )
 
 func DownBlock(publicKey, bucketName, fileName string, blockNum int) ([]byte, error) {
 	var data []byte
 
-	resp, err := http.Get("https://localhost:8080/api/v1/getBlockForSGX?publicKey=" + publicKey + "&bucketName=" + bucketName + "&fileName=" + fileName + "&blockNum=" + strconv.Itoa(blockNum))
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	//http cookie接口
+	cookieJar, _ := cookiejar.New(nil)
+	c := &http.Client{
+		Jar:       cookieJar,
+		Transport: tr,
+	}
+	str2 := fmt.Sprintf("%d", blockNum)
+	resp, err := c.Get("https://127.0.0.1:8080/api/v1/getBlockForSGX?publicKey=" + publicKey + "&bucketName=" + bucketName + "&fileName=" + fileName + "&blockNum=" + str2)
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	} else {
 		defer resp.Body.Close()
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			data = body
+			err = json.Unmarshal(body, &data)
+			//data = body
 		}
 
 	}

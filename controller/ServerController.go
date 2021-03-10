@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"bufio"
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
@@ -14,6 +13,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	sgxaes "github.com/yottachain/YTSGX/aes"
 	"github.com/yottachain/YTSGX/s3server"
 	"github.com/yottachain/YTSGX/tools"
 )
@@ -23,41 +23,41 @@ func AddUser(g *gin.Context) {
 	var num uint32
 
 	// priKey, pubKey := tools.CreateKey()
-	priKey := "5KcTgaryRNpRhQ33NYMkHDVzGSyXF35hYXKR34aZkNhzU2S1iBK"
-	pubKey := "8fYbPL1vD3RZjFDhax7bruKymvTvrXUzY7FSCa4Qjfs9NQy2aR"
-	userName := "yottanewsabc"
-	// num, err := s3server.AddKey(userName, pubKey)
+	priKey := "5KETn1mgk4wpv78GLiGA2mejyqCzE53S2W7shWzqFBuLRrafJ4f"
+	pubKey := "YTA5gm2YiRbSG229atUaEXbxPEbnAiUUDoPH8tyDQ7NqAC6VpzJ6v"
+	userName := "testusernew1"
+	num, err := s3server.AddKey(userName, pubKey)
 
-	// if err != nil {
-
-	// } else {
-	// 	user := tools.User{
-	// 		UserName:   userName,
-	// 		Num:        num,
-	// 		PrivateKey: priKey,
-	// 		PublicKey:  pubKey,
-	// 	}
-
-	// 	data, err := json.Marshal(user)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-
-	// 	tools.UserWrite(data)
-	// }
-
-	user := tools.User{
-		UserName:   userName,
-		Num:        num,
-		PrivateKey: priKey,
-		PublicKey:  pubKey,
-	}
-	data, err := json.Marshal(user)
 	if err != nil {
-		log.Fatal(err)
+
+	} else {
+		user := tools.User{
+			UserName:   userName,
+			Num:        num,
+			PrivateKey: priKey,
+			PublicKey:  pubKey,
+		}
+
+		data, err := json.Marshal(user)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		tools.UserWrite(data)
 	}
 
-	tools.UserWrite(data)
+	//user := tools.User{
+	//	UserName:   userName,
+	//	Num:        num,
+	//	PrivateKey: priKey,
+	//	PublicKey:  pubKey,
+	//}
+	//data, err := json.Marshal(user)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//
+	//tools.UserWrite(data)
 
 	//读 user JSON文件
 	data1 := tools.ReadUserInfo()
@@ -165,11 +165,20 @@ func read(directory, fileName string) {
 }
 
 func DownloadFileForSGX(g *gin.Context) {
-	publicKey := "YTA5Y1JnrZDziiFeGhcBBUW8JJZWHvw2K96AGsgcdZbPWb2PKXyov"
-	bucketName := "test"
-	fileName := "aa1"
+	bucketName := g.Query("bucketName")
+	fileName := g.Query("objectKey")
+	userdata := tools.ReadUserInfo()
+	var user tools.User
+	user = tools.UserUnmarshal(userdata)
+	publicKey := user.PublicKey
+
 	var blockNum int
 	blockNum = 0
+
+	key, err := sgxaes.NewKey(user.PrivateKey, user.Num)
+	if err != nil {
+
+	}
 
 	directory := "./storage/" + bucketName
 	filePath := createDirectory(directory, fileName)
@@ -179,7 +188,7 @@ func DownloadFileForSGX(g *gin.Context) {
 		log.Fatal(err)
 	}
 	defer f.Close()
-	write := bufio.NewWriter(f)
+	//write := bufio.NewWriter(f)
 
 	for blockNum != -1 {
 		data, err := s3server.DownBlock(publicKey, bucketName, fileName, blockNum)
@@ -187,7 +196,11 @@ func DownloadFileForSGX(g *gin.Context) {
 
 		} else {
 			if len(data) > 0 {
-				write.Write(data)
+
+				block := sgxaes.NewEncryptedBlock(data)
+				err = block.Decode(key, f)
+
+				//write.Write(data)
 				blockNum++
 			} else {
 				blockNum = -1
