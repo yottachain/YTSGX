@@ -18,24 +18,40 @@ import (
 	"github.com/yottachain/YTSGX/tools"
 )
 
-//GetInfo test demo
+func GetPubKey(g *gin.Context) {
+	userName := g.Query("userName")
+	priKey, pubKey := tools.CreateKey()
+	user := tools.User{
+		UserName:   userName,
+		PrivateKey: priKey,
+		PublicKey:  pubKey,
+	}
+
+	data, err := json.Marshal(user)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tools.UserWrite(data)
+
+	g.JSON(http.StatusOK, gin.H{"publicKey:": "YTA" + user.PublicKey})
+}
+
 func AddUser(g *gin.Context) {
 	var num uint32
-
-	// priKey, pubKey := tools.CreateKey()
-	priKey := "5KETn1mgk4wpv78GLiGA2mejyqCzE53S2W7shWzqFBuLRrafJ4f"
-	pubKey := "YTA5gm2YiRbSG229atUaEXbxPEbnAiUUDoPH8tyDQ7NqAC6VpzJ6v"
-	userName := "testusernew1"
-	num, err := s3server.AddKey(userName, pubKey)
+	data := tools.ReadUserInfo()
+	var uu tools.User
+	uu = tools.UserUnmarshal(data)
+	num, err := s3server.AddKey(uu.UserName, uu.PublicKey)
 
 	if err != nil {
-
+		g.JSON(http.StatusBadRequest, gin.H{"errMsg": err})
 	} else {
 		user := tools.User{
-			UserName:   userName,
+			UserName:   uu.UserName,
 			Num:        num,
-			PrivateKey: priKey,
-			PublicKey:  pubKey,
+			PrivateKey: uu.PrivateKey,
+			PublicKey:  uu.PublicKey,
 		}
 
 		data, err := json.Marshal(user)
@@ -44,6 +60,8 @@ func AddUser(g *gin.Context) {
 		}
 
 		tools.UserWrite(data)
+
+		g.JSON(http.StatusOK, gin.H{"publicKey:": uu.PublicKey})
 	}
 
 	//user := tools.User{
@@ -59,12 +77,12 @@ func AddUser(g *gin.Context) {
 	//
 	//tools.UserWrite(data)
 
-	//读 user JSON文件
-	data1 := tools.ReadUserInfo()
-	var uu tools.User
-	uu = tools.UserUnmarshal(data1)
-
-	g.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "priKey:": uu.PrivateKey + ",pubKey:" + uu.PublicKey})
+	////读 user JSON文件
+	//data1 := tools.ReadUserInfo()
+	//var uu tools.User
+	//uu = tools.UserUnmarshal(data1)
+	//
+	//g.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "priKey:": uu.PrivateKey + ",pubKey:" + uu.PublicKey})
 
 }
 
@@ -207,6 +225,7 @@ func DownloadFileForSGX(g *gin.Context) {
 			}
 		}
 	}
+	g.JSON(http.StatusOK, gin.H{"Msg": "[" + fileName + "] download is successful."})
 
 }
 
