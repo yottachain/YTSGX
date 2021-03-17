@@ -79,7 +79,7 @@ func ReadUserInfo() []byte {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(string(data[:n]))
+	//fmt.Println(string(data[:n]))
 	return data[:n]
 }
 
@@ -92,9 +92,9 @@ func UserUnmarshal(data []byte) User {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("UserName:" + user.UserName)
-	fmt.Println("PrivateKey:" + user.PrivateKey)
-	fmt.Println("PublicKey:" + user.PublicKey)
+	//fmt.Println("UserName:" + user.UserName)
+	//fmt.Println("PrivateKey:" + user.PrivateKey)
+	//fmt.Println("PublicKey:" + user.PublicKey)
 	return user
 }
 

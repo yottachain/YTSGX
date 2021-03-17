@@ -6,6 +6,7 @@ import (
 	"crypto/cipher"
 	"encoding/json"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"log"
 	"net/http"
 	"os"
@@ -20,7 +21,9 @@ import (
 
 func GetPubKey(g *gin.Context) {
 	userName := g.Query("userName")
-	priKey, pubKey := tools.CreateKey()
+	//priKey, pubKey := tools.CreateKey()
+	priKey := g.Query("privateKey")
+	pubKey := g.Query("publicKey")
 	user := tools.User{
 		UserName:   userName,
 		PrivateKey: priKey,
@@ -29,7 +32,7 @@ func GetPubKey(g *gin.Context) {
 
 	data, err := json.Marshal(user)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Errorf("Marshal err:%s\n", err)
 	}
 
 	tools.UserWrite(data)
@@ -56,7 +59,7 @@ func AddUser(g *gin.Context) {
 
 		data, err := json.Marshal(user)
 		if err != nil {
-			log.Fatal(err)
+			logrus.Errorf("Marshal err:%s\n", err)
 		}
 
 		tools.UserWrite(data)
@@ -92,10 +95,10 @@ func write(directory, fileName string) {
 		if !os.IsExist(err) {
 			err = os.MkdirAll(directory, os.ModePerm)
 			if err != nil {
-				log.Fatal(err)
+				//log.Fatal(err)
 			}
 		} else {
-			log.Fatal(err)
+			//log.Fatal(err)
 		}
 	} else {
 		if !s.IsDir() {
