@@ -11,7 +11,7 @@ import (
 func AddKey(username, pubKey string) (uint32, error) {
 	var num uint32
 
-	url := "https://localhost:8080/api/v1/addPubkey?publicKey=" + pubKey + "&userName=" + username
+	url := "https://172.17.0.2:8080/api/v1/addPubkey?publicKey=" + pubKey + "&userName=" + username
 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
