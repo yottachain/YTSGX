@@ -21,9 +21,9 @@ import (
 
 func GetPubKey(g *gin.Context) {
 	userName := g.Query("userName")
-	//priKey, pubKey := tools.CreateKey()
-	priKey := g.Query("privateKey")
-	pubKey := g.Query("publicKey")
+	priKey, pubKey := tools.CreateKey()
+	//priKey := g.Query("privateKey")
+	//pubKey := g.Query("publicKey")
 	user := tools.User{
 		UserName:   userName,
 		PrivateKey: priKey,
