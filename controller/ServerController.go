@@ -34,7 +34,7 @@ func GetPubKey(g *gin.Context) {
 	user := tools.User{
 		UserName:   userName,
 		PrivateKey: priKey,
-		PublicKey:  pubKey,
+		PublicKey:  "YTA" + pubKey,
 	}
 
 	data, err := json.Marshal(user)
