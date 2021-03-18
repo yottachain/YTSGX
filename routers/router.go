@@ -19,6 +19,7 @@ func InitRouter() (router *gin.Engine) {
 		v1.GET("/addUser", controller.AddUser)
 		v1.GET("/getObject", controller.DownloadFileForSGX)
 		v1.GET("/getRandPublicKey", controller.GetPubKey)
+		v1.GET("/getUserInfo", controller.GetUserInfo)
 
 	}
 

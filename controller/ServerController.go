@@ -19,6 +19,13 @@ import (
 	"github.com/yottachain/YTSGX/tools"
 )
 
+func GetUserInfo(g *gin.Context) {
+	data := tools.ReadUserInfo()
+	var uu tools.User
+	uu = tools.UserUnmarshal(data)
+	g.JSON(http.StatusOK, uu)
+}
+
 func GetPubKey(g *gin.Context) {
 	userName := g.Query("userName")
 	priKey, pubKey := tools.CreateKey()
