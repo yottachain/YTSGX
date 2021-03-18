@@ -4,7 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	"log"
+	"github.com/sirupsen/logrus"
 	"os"
 
 	ecrypto "github.com/ethereum/go-ethereum/crypto"
@@ -59,12 +59,12 @@ func ripemd160Sum(bytes []byte) []byte {
 func UserWrite(data []byte) {
 	fp, err := os.OpenFile("user.json", os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Errorf("err:%s\n", err)
 	}
 	defer fp.Close()
 	_, err = fp.Write(data)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Errorf("err:%s\n", err)
 	}
 }
 
@@ -72,12 +72,12 @@ func ReadUserInfo() []byte {
 	fp, err := os.OpenFile("./user.json", os.O_RDONLY, 0755)
 	defer fp.Close()
 	if err != nil {
-		log.Fatal(err)
+		logrus.Errorf("err:%s\n", err)
 	}
 	data := make([]byte, 1024)
 	n, err := fp.Read(data)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Errorf("err:%s\n", err)
 	}
 	//fmt.Println(string(data[:n]))
 	return data[:n]
@@ -90,7 +90,7 @@ func UserUnmarshal(data []byte) User {
 	}
 	err := json.Unmarshal(data, &user)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Errorf("err:%s\n", err)
 	}
 	//fmt.Println("UserName:" + user.UserName)
 	//fmt.Println("PrivateKey:" + user.PrivateKey)

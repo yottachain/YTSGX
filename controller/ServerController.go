@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/sirupsen/logrus"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -119,7 +118,7 @@ func write(directory, fileName string) {
 	// logrus.Infof("file directory:%s\n", directory)
 	f, err := os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Errorf("Erre:%s\n", err)
 	}
 	defer f.Close()
 
@@ -207,13 +206,21 @@ func DownloadFileForSGX(g *gin.Context) {
 	if err != nil {
 
 	}
+	index := strings.Index(fileName, "/")
+	var filePath string
+	if index != -1 {
+		directory := "./storage/" + bucketName + "/" + fileName[:index]
+		fname := fileName[index+1:]
+		filePath = createDirectory(directory, fname)
+	} else {
+		directory := "./storage/" + bucketName
 
-	directory := "./storage/" + bucketName
-	filePath := createDirectory(directory, fileName)
+		filePath = createDirectory(directory, fileName)
+	}
 
 	f, err := os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Errorf("erra:%s\n", err)
 	}
 	defer f.Close()
 	//write := bufio.NewWriter(f)
@@ -245,10 +252,10 @@ func createDirectory(directory, fileName string) string {
 		if !os.IsExist(err) {
 			err = os.MkdirAll(directory, os.ModePerm)
 			if err != nil {
-				log.Fatal(err)
+				logrus.Errorf("err1:%s\n", err)
 			}
 		} else {
-			log.Fatal(err)
+			logrus.Errorf("err2:%s\n", err)
 		}
 	} else {
 		if !s.IsDir() {
