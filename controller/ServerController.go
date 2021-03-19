@@ -4,9 +4,12 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
@@ -228,7 +231,9 @@ func DownloadFileForSGX(g *gin.Context) {
 	for blockNum != -1 {
 		data, err := s3server.DownBlock(publicKey, bucketName, fileName, blockNum)
 		if err != nil {
-
+			blockNum = -1
+			g.JSON(http.StatusAccepted, gin.H{"Msg": "[" + fileName + "] download is failure ."})
+			return
 		} else {
 			if len(data) > 0 {
 
@@ -242,7 +247,9 @@ func DownloadFileForSGX(g *gin.Context) {
 			}
 		}
 	}
-	g.JSON(http.StatusOK, gin.H{"Msg": "[" + fileName + "] download is successful."})
+	md5Value := Md5SumFile(filePath)
+
+	g.JSON(http.StatusOK, gin.H{"File md5:": md5Value, "Msg": "[" + fileName + "] download is successful."})
 
 }
 
@@ -268,4 +275,15 @@ func createDirectory(directory, fileName string) string {
 	filePath := directory + fileName
 
 	return filePath
+}
+
+func Md5SumFile(file string) string {
+	data, err := ioutil.ReadFile(file)
+	if err != nil {
+		return err.Error()
+	}
+	md5 := md5.New()
+	md5.Write(data)
+	md5Data := md5.Sum([]byte(nil))
+	return hex.EncodeToString(md5Data)
 }
