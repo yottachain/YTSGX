@@ -28,6 +28,29 @@ func GetUserInfo(g *gin.Context) {
 	g.JSON(http.StatusOK, uu)
 }
 
+func UpdateUserInfo(g *gin.Context) {
+	var uu tools.User
+	userName := g.Query("userName")
+	priKey := g.Query("privateKey")
+	pubKey := g.Query("publicKey")
+	uu.UserName = userName
+	uu.PublicKey = pubKey
+	uu.PrivateKey = priKey
+	data, err := json.Marshal(uu)
+	if err != nil {
+		logrus.Errorf("Marshal err:%s\n", err)
+	}
+
+	tools.UserWrite(data)
+
+	data1 := tools.ReadUserInfo()
+	var u1 tools.User
+	u1 = tools.UserUnmarshal(data1)
+
+	g.JSON(http.StatusOK, u1)
+
+}
+
 func GetPubKey(g *gin.Context) {
 	userName := g.Query("userName")
 	priKey, pubKey := tools.CreateKey()
@@ -238,10 +261,16 @@ func DownloadFileForSGX(g *gin.Context) {
 			if len(data) > 0 {
 
 				block := sgxaes.NewEncryptedBlock(data)
-				err = block.Decode(key, f)
+				err1 := block.Decode(key, f)
 
-				//write.Write(data)
-				blockNum++
+				if err1 != nil {
+					fmt.Println(err1)
+					g.JSON(http.StatusAccepted, gin.H{"Msg": "[" + fileName + "] download is failure ."})
+					return
+				} else {
+					blockNum++
+				}
+
 			} else {
 				blockNum = -1
 			}
