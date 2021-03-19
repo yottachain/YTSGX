@@ -200,8 +200,8 @@ func DownloadFileForSGX(g *gin.Context) {
 	userdata := tools.ReadUserInfo()
 	var user tools.User
 	user = tools.UserUnmarshal(userdata)
-	publicKey := user.PublicKey
-
+	//publicKey := user.PublicKey
+	userName := user.UserName
 	var blockNum int
 	blockNum = 0
 
@@ -229,7 +229,7 @@ func DownloadFileForSGX(g *gin.Context) {
 	//write := bufio.NewWriter(f)
 
 	for blockNum != -1 {
-		data, err := s3server.DownBlock(publicKey, bucketName, fileName, blockNum)
+		data, err := s3server.DownBlock(userName, bucketName, fileName, blockNum)
 		if err != nil {
 			blockNum = -1
 			g.JSON(http.StatusAccepted, gin.H{"Msg": "[" + fileName + "] download is failure ."})
