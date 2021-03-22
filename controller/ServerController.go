@@ -81,9 +81,9 @@ func GetExcelUsers(g *gin.Context) {
 
 		for _, uu := range users {
 			if uu.Allergen != "无" {
-				allergenCount++
-			} else {
 				not_allergenCount++
+			} else {
+				allergenCount++
 			}
 			if uu.Heart != "良好" {
 				cardioCount++
