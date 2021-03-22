@@ -61,7 +61,7 @@ func GetExcelUsers(g *gin.Context) {
 	sex := g.Query("sex")
 	age_s := g.Query("age_s")
 	age_h := g.Query("age_h")
-	filePath := g.Query("filePath")
+	filePath := g.Query("filepath")
 	//fileName:=g.Query("fileName")
 	logrus.Infof("filePath11111:%s\n", filePath)
 	//filePath:= "./storage/"+fileName
