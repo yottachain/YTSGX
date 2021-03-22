@@ -63,7 +63,7 @@ func GetExcelUsers(g *gin.Context) {
 	age_h := g.Query("age_h")
 	filePath := g.Query("filePath")
 	//fileName:=g.Query("fileName")
-
+	logrus.Infof("filePath11111:%s\n", filePath)
 	//filePath:= "./storage/"+fileName
 	users := tools.ReadExcel(filePath)
 	excelUsersResults.TotalUserCount = len(users)
@@ -438,6 +438,7 @@ func DownloadFileForSGX(g *gin.Context) {
 		filePath = createDirectory(directory, fileName)
 	}
 
+	logrus.Infof("filePath:%s\n", filePath)
 	f, err := os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 	if err != nil {
 		logrus.Errorf("erra:%s\n", err)
