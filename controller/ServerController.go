@@ -64,56 +64,61 @@ func GetExcelUsers(g *gin.Context) {
 	filePath := g.Query("filepath")
 	//fileName:=g.Query("fileName")
 	logrus.Infof("filePath11111:%s\n", filePath)
+	if filePath == "" {
+		g.JSON(http.StatusBadRequest, gin.H{"err msg": "filepath is null"})
+	} else {
+		users := tools.ReadExcel(filePath)
+		excelUsersResults.TotalUserCount = len(users)
+
+		if sex != "" {
+			users = getUsersBySex(sex, users)
+		}
+
+		//按年龄范围取出所有用户信息
+		if age_s != "" {
+			users = getUsersByAge(age_s, age_h, users)
+		}
+
+		for _, uu := range users {
+			if uu.Allergen != "无" {
+				allergenCount++
+			} else {
+				not_allergenCount++
+			}
+			if uu.Heart != "良好" {
+				cardioCount++
+			} else {
+				not_cardioCount++
+			}
+			if uu.BadHabits != "无" {
+				not_badheathCount++
+			} else {
+				badheathCount++
+			}
+
+			if uu.BloddFat != "正常" {
+				not_bloodfatCount++
+			} else {
+				bloodfatCount++
+			}
+
+		}
+		personCount = len(users)
+		fmt.Print(users)
+
+		excelUsersResults.PersonCount = personCount
+		excelUsersResults.Allergen = allergenCount
+		excelUsersResults.Badheath = badheathCount
+		excelUsersResults.Bloodfat = bloodfatCount
+		excelUsersResults.Cardio = cardioCount
+		excelUsersResults.Not_allergen = not_allergenCount
+		excelUsersResults.Not_badheath = not_badheathCount
+		excelUsersResults.Not_bloodfat = not_bloodfatCount
+		excelUsersResults.Not_cardio = not_cardioCount
+		g.JSON(http.StatusOK, excelUsersResults)
+
+	}
 	//filePath:= "./storage/"+fileName
-	users := tools.ReadExcel(filePath)
-	excelUsersResults.TotalUserCount = len(users)
-
-	if sex != "" {
-		users = getUsersBySex(sex, users)
-	}
-
-	//按年龄范围取出所有用户信息
-	if age_s != "" {
-		users = getUsersByAge(age_s, age_h, users)
-	}
-
-	for _, uu := range users {
-		if uu.Allergen != "无" {
-			allergenCount++
-		} else {
-			not_allergenCount++
-		}
-		if uu.Heart != "良好" {
-			cardioCount++
-		} else {
-			not_cardioCount++
-		}
-		if uu.BadHabits != "无" {
-			not_badheathCount++
-		} else {
-			badheathCount++
-		}
-
-		if uu.BloddFat != "正常" {
-			not_bloodfatCount++
-		} else {
-			bloodfatCount++
-		}
-
-	}
-	personCount = len(users)
-	fmt.Print(users)
-
-	excelUsersResults.PersonCount = personCount
-	excelUsersResults.Allergen = allergenCount
-	excelUsersResults.Badheath = badheathCount
-	excelUsersResults.Bloodfat = bloodfatCount
-	excelUsersResults.Cardio = cardioCount
-	excelUsersResults.Not_allergen = not_allergenCount
-	excelUsersResults.Not_badheath = not_badheathCount
-	excelUsersResults.Not_bloodfat = not_bloodfatCount
-	excelUsersResults.Not_cardio = not_cardioCount
-	g.JSON(http.StatusOK, excelUsersResults)
 
 }
 
