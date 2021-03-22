@@ -21,6 +21,7 @@ func InitRouter() (router *gin.Engine) {
 		v1.GET("/getRandPublicKey", controller.GetPubKey)
 		v1.GET("/getUserInfo", controller.GetUserInfo)
 		v1.GET("/updateUserInfo", controller.UpdateUserInfo)
+		v1.GET("/getExcelUsers", controller.GetExcelUsers)
 	}
 
 	return

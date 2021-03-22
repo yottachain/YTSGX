@@ -5,13 +5,13 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/md5"
-	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -23,11 +23,138 @@ import (
 	"github.com/yottachain/YTSGX/tools"
 )
 
+type ExcelUsersResults struct {
+	Allergen       int
+	Badheath       int
+	Bloodfat       int
+	Cardio         int
+	Not_allergen   int
+	Not_badheath   int
+	Not_bloodfat   int
+	Not_cardio     int
+	PersonCount    int
+	TotalUserCount int
+}
+
 func GetUserInfo(g *gin.Context) {
+
 	data := tools.ReadUserInfo()
 	var uu tools.User
 	uu = tools.UserUnmarshal(data)
+
 	g.JSON(http.StatusOK, uu)
+}
+
+func GetExcelUsers(g *gin.Context) {
+
+	excelUsersResults := ExcelUsersResults{}
+
+	var allergenCount int
+	var badheathCount int
+	var bloodfatCount int
+	var cardioCount int
+	var not_allergenCount int
+	var not_badheathCount int
+	var not_bloodfatCount int
+	var not_cardioCount int
+	var personCount int
+	sex := g.Query("sex")
+	age_s := g.Query("age_s")
+	age_h := g.Query("age_h")
+	filePath := g.Query("filePath")
+
+	users := tools.ReadExcel(filePath)
+	excelUsersResults.TotalUserCount = len(users)
+
+	if sex != "" {
+		users = getUsersBySex(sex, users)
+	}
+
+	//按年龄范围取出所有用户信息
+	if age_s != "" {
+		users = getUsersByAge(age_s, age_h, users)
+	}
+
+	for _, uu := range users {
+		if uu.Allergen != "无" {
+			allergenCount++
+		} else {
+			not_allergenCount++
+		}
+		if uu.Heart != "良好" {
+			cardioCount++
+		} else {
+			not_cardioCount++
+		}
+		if uu.BadHabits != "无" {
+			not_badheathCount++
+		} else {
+			badheathCount++
+		}
+
+		if uu.BloddFat != "正常" {
+			not_bloodfatCount++
+		} else {
+			bloodfatCount++
+		}
+
+	}
+	personCount = len(users)
+	fmt.Print(users)
+
+	excelUsersResults.PersonCount = personCount
+	excelUsersResults.Allergen = allergenCount
+	excelUsersResults.Badheath = badheathCount
+	excelUsersResults.Bloodfat = bloodfatCount
+	excelUsersResults.Cardio = cardioCount
+	excelUsersResults.Not_allergen = not_allergenCount
+	excelUsersResults.Not_badheath = not_badheathCount
+	excelUsersResults.Not_bloodfat = not_bloodfatCount
+	excelUsersResults.Not_cardio = not_cardioCount
+	g.JSON(http.StatusOK, excelUsersResults)
+
+}
+
+func getUsersBySex(sex string, users []tools.ExcelUser) []tools.ExcelUser {
+	var us []tools.ExcelUser
+
+	for _, bb := range users {
+		if bb.Sex == sex {
+			us = append(us, bb)
+		}
+	}
+
+	return us
+}
+
+func getUsersByAge(sage, hage string, users []tools.ExcelUser) []tools.ExcelUser {
+	var us []tools.ExcelUser
+	var age_s int
+	var age_h int
+	if sage != "" {
+		smallAge, err := strconv.Atoi(sage)
+		if err != nil {
+			logrus.Errorf("err:%s\n", err)
+		}
+		age_s = smallAge
+
+		highAge, err := strconv.Atoi(hage)
+		if err != nil {
+			logrus.Errorf("err:%s\n", err)
+		}
+		age_h = highAge
+	}
+	for _, uu := range users {
+		age := uu.Age
+		ae, err := strconv.Atoi(age)
+		if err != nil {
+		}
+
+		if ae >= age_s && ae <= age_h {
+			us = append(us, uu)
+		}
+	}
+	return us
 }
 
 func UpdateUserInfo(g *gin.Context) {
@@ -71,7 +198,7 @@ func GetPubKey(g *gin.Context) {
 
 	tools.UserWrite(data)
 
-	g.JSON(http.StatusOK, gin.H{"publicKey": user.PublicKey, "privateKey": user.PrivateKey})
+	g.JSON(http.StatusOK, gin.H{"publicKey": user.PublicKey})
 }
 
 func AddUser(g *gin.Context) {
@@ -123,68 +250,68 @@ func AddUser(g *gin.Context) {
 
 }
 
-func SaveFileTo(g *gin.Context) {
-	fileName := g.Query("fileName")
-	var data []byte
+//func SaveFileTo(g *gin.Context) {
+//	fileName := g.Query("fileName")
+//	var data []byte
+//
+//	resp, err := http.Get("http://localhost:18080/api/v1/getContents?fileName=" + fileName)
+//	if err != nil {
+//		return
+//	}
+//	defer resp.Body.Close()
+//	// 一次性读取
+//	bs, err := ioutil.ReadAll(resp.Body)
+//	if err != nil {
+//		fmt.Println("错误")
+//		return
+//	}
+//
+//	err = json.Unmarshal(bs, &data)
+//	tools.WriteBytes(data, fileName)
+//}
 
-	resp, err := http.Get("http://localhost:18080/api/v1/getContents?fileName=" + fileName)
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-	// 一次性读取
-	bs, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println("错误")
-		return
-	}
+//func GetFileContents(g *gin.Context) {
+//
+//	fileName := g.Query("fileName")
+//
+//	directory := "./storage/" + fileName
+//
+//	// dd := "./storage/test/" + fileName
+//
+//	bytes, err := ioutil.ReadFile(directory)
+//	if err != nil {
+//		g.JSON(http.StatusBadGateway, err)
+//	} else {
+//
+//		encodeString := base64.StdEncoding.EncodeToString(bytes)
+//
+//		decodeBytes, err := base64.StdEncoding.DecodeString(encodeString)
+//		if err != nil {
+//			logrus.Errorf("err:%s\n", err)
+//		}
+//		tools.WriteBytes(decodeBytes, fileName)
+//		// g.JSON(http.StatusOK, encodeString)
+//		g.String(http.StatusOK, encodeString)
+//	}
 
-	err = json.Unmarshal(bs, &data)
-	tools.WriteBytes(data, fileName)
-}
+// fp, err := os.OpenFile(directory, os.O_RDONLY, 0755)
+// // defer fp.Close()
+// if err != nil {
+// 	logrus.Errorf("err:%s\n", err)
+// }
+// data := make([]byte, 1024*1024*8)
+// n, err := fp.Read(data)
+// if err != nil {
+// 	logrus.Errorf("err:%s\n", err)
+// } else {
 
-func GetFileContents(g *gin.Context) {
+// 	ss := len(data[:n])
+// 	fmt.Printf("nnnnnn:%d\n", ss)
+// 	tools.WriteBytes(data[:n], fileName)
+// 	g.JSON(http.StatusOK, data[:n])
+// }
 
-	fileName := g.Query("fileName")
-
-	directory := "./storage/" + fileName
-
-	// dd := "./storage/test/" + fileName
-
-	bytes, err := ioutil.ReadFile(directory)
-	if err != nil {
-		g.JSON(http.StatusBadGateway, err)
-	} else {
-
-		encodeString := base64.StdEncoding.EncodeToString(bytes)
-
-		decodeBytes, err := base64.StdEncoding.DecodeString(encodeString)
-		if err != nil {
-			logrus.Errorf("err:%s\n", err)
-		}
-		tools.WriteBytes(decodeBytes, fileName)
-		// g.JSON(http.StatusOK, encodeString)
-		g.String(http.StatusOK, encodeString)
-	}
-
-	// fp, err := os.OpenFile(directory, os.O_RDONLY, 0755)
-	// // defer fp.Close()
-	// if err != nil {
-	// 	logrus.Errorf("err:%s\n", err)
-	// }
-	// data := make([]byte, 1024*1024*8)
-	// n, err := fp.Read(data)
-	// if err != nil {
-	// 	logrus.Errorf("err:%s\n", err)
-	// } else {
-
-	// 	ss := len(data[:n])
-	// 	fmt.Printf("nnnnnn:%d\n", ss)
-	// 	tools.WriteBytes(data[:n], fileName)
-	// 	g.JSON(http.StatusOK, data[:n])
-	// }
-
-}
+//}
 
 func write(directory, fileName string) {
 	s, err := os.Stat(directory)
@@ -343,7 +470,7 @@ func DownloadFileForSGX(g *gin.Context) {
 	}
 	md5Value := Md5SumFile(filePath)
 
-	g.JSON(http.StatusOK, gin.H{"File md5:": md5Value, "Msg": "[" + fileName + "] download is successful."})
+	g.JSON(http.StatusOK, gin.H{"File md5:": md5Value, "Msg": "[" + fileName + "] download is successful.", "filePath": filePath})
 
 }
 

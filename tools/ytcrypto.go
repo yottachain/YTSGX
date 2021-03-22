@@ -4,10 +4,8 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	"os"
-	"strings"
-
 	"github.com/sirupsen/logrus"
+	"os"
 
 	ecrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/mr-tron/base58"
@@ -70,39 +68,39 @@ func UserWrite(data []byte) {
 	}
 }
 
-func WriteBytes(data []byte, file string) {
-	directory := "./storage/test"
-	s, err := os.Stat(directory)
-	if err != nil {
-		if !os.IsExist(err) {
-			err = os.MkdirAll(directory, os.ModePerm)
-			if err != nil {
-				//log.Fatal(err)
-			}
-		} else {
-			//log.Fatal(err)
-		}
-	} else {
-		if !s.IsDir() {
-			// logrus.Errorf("err:%s\n", "The specified path is not a directory.")
-		}
-	}
-	if !strings.HasSuffix(directory, "/") {
-		directory = directory + "/"
-	}
-	filePath := directory + file
-	// logrus.Infof("file directory:%s\n", directory)
-	fp, err := os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
-	if err != nil {
-		logrus.Errorf("Erre:%s\n", err)
-	}
-	defer fp.Close()
-
-	_, err = fp.Write(data)
-	if err != nil {
-		logrus.Errorf("err:%s\n", err)
-	}
-}
+//func WriteBytes(data []byte, file string) {
+//	directory := "./storage/test"
+//	s, err := os.Stat(directory)
+//	if err != nil {
+//		if !os.IsExist(err) {
+//			err = os.MkdirAll(directory, os.ModePerm)
+//			if err != nil {
+//				//log.Fatal(err)
+//			}
+//		} else {
+//			//log.Fatal(err)
+//		}
+//	} else {
+//		if !s.IsDir() {
+//			// logrus.Errorf("err:%s\n", "The specified path is not a directory.")
+//		}
+//	}
+//	if !strings.HasSuffix(directory, "/") {
+//		directory = directory + "/"
+//	}
+//	filePath := directory + file
+//	// logrus.Infof("file directory:%s\n", directory)
+//	fp, err := os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+//	if err != nil {
+//		logrus.Errorf("Erre:%s\n", err)
+//	}
+//	defer fp.Close()
+//
+//	_, err = fp.Write(data)
+//	if err != nil {
+//		logrus.Errorf("err:%s\n", err)
+//	}
+//}
 
 func ReadUserInfo() []byte {
 	fp, err := os.OpenFile("./user.json", os.O_RDONLY, 0755)
