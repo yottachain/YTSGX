@@ -62,7 +62,9 @@ func GetExcelUsers(g *gin.Context) {
 	age_s := g.Query("age_s")
 	age_h := g.Query("age_h")
 	filePath := g.Query("filePath")
+	//fileName:=g.Query("fileName")
 
+	//filePath:= "./storage/"+fileName
 	users := tools.ReadExcel(filePath)
 	excelUsersResults.TotalUserCount = len(users)
 

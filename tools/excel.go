@@ -2,7 +2,7 @@ package tools
 
 import (
 	"fmt"
-	"os"
+	"github.com/sirupsen/logrus"
 	"strconv"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
@@ -22,7 +22,8 @@ func ReadExcel(filePath string) []ExcelUser {
 	xlsx, err := excelize.OpenFile(filePath)
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(1)
+		logrus.Errorf("err:%s\n", err)
+		//os.Exit(1)
 	}
 	// Get sheet index.
 	index := xlsx.GetSheetIndex("Sheet1")
