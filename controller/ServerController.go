@@ -5,14 +5,16 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/md5"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
 
@@ -118,6 +120,69 @@ func AddUser(g *gin.Context) {
 	//uu = tools.UserUnmarshal(data1)
 	//
 	//g.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "priKey:": uu.PrivateKey + ",pubKey:" + uu.PublicKey})
+
+}
+
+func SaveFileTo(g *gin.Context) {
+	fileName := g.Query("fileName")
+	var data []byte
+
+	resp, err := http.Get("http://localhost:18080/api/v1/getContents?fileName=" + fileName)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+	// 一次性读取
+	bs, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("错误")
+		return
+	}
+
+	err = json.Unmarshal(bs, &data)
+	tools.WriteBytes(data, fileName)
+}
+
+func GetFileContents(g *gin.Context) {
+
+	fileName := g.Query("fileName")
+
+	directory := "./storage/" + fileName
+
+	// dd := "./storage/test/" + fileName
+
+	bytes, err := ioutil.ReadFile(directory)
+	if err != nil {
+		g.JSON(http.StatusBadGateway, err)
+	} else {
+
+		encodeString := base64.StdEncoding.EncodeToString(bytes)
+
+		decodeBytes, err := base64.StdEncoding.DecodeString(encodeString)
+		if err != nil {
+			logrus.Errorf("err:%s\n", err)
+		}
+		tools.WriteBytes(decodeBytes, fileName)
+		// g.JSON(http.StatusOK, encodeString)
+		g.String(http.StatusOK, encodeString)
+	}
+
+	// fp, err := os.OpenFile(directory, os.O_RDONLY, 0755)
+	// // defer fp.Close()
+	// if err != nil {
+	// 	logrus.Errorf("err:%s\n", err)
+	// }
+	// data := make([]byte, 1024*1024*8)
+	// n, err := fp.Read(data)
+	// if err != nil {
+	// 	logrus.Errorf("err:%s\n", err)
+	// } else {
+
+	// 	ss := len(data[:n])
+	// 	fmt.Printf("nnnnnn:%d\n", ss)
+	// 	tools.WriteBytes(data[:n], fileName)
+	// 	g.JSON(http.StatusOK, data[:n])
+	// }
 
 }
 
