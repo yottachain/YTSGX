@@ -71,7 +71,7 @@ func GetPubKey(g *gin.Context) {
 
 	tools.UserWrite(data)
 
-	g.JSON(http.StatusOK, gin.H{"publicKey:": user.PublicKey})
+	g.JSON(http.StatusOK, gin.H{"publicKey": user.PublicKey, "privateKey": user.PrivateKey})
 }
 
 func AddUser(g *gin.Context) {
