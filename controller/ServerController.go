@@ -80,7 +80,9 @@ func GetExcelUsers(g *gin.Context) {
 		}
 
 		for _, uu := range users {
-			if uu.Allergen != "无" {
+			logrus.Infof("Allergen:%s\n", uu.Allergen)
+			fmt.Println(uu.Allergen == "无")
+			if uu.Allergen == "无" {
 				not_allergenCount++
 			} else {
 				allergenCount++
