@@ -45,6 +45,83 @@ func GetUserInfo(g *gin.Context) {
 	g.JSON(http.StatusOK, uu)
 }
 
+func GetAllAuthExcelUsers(g *gin.Context) {
+	sex := g.Query("sex")
+	age_s := g.Query("age_s")
+	age_h := g.Query("age_h")
+
+	//遍历被授权的所有Excel文件，后缀必须为.xlsx
+	files, err := tools.WalkDir("./storage/share", ".xlsx")
+	fmt.Println(files, err)
+	excelUsersResults := ExcelUsersResults{}
+
+	var allergenCount int
+	var badheathCount int
+	var bloodfatCount int
+	var cardioCount int
+	var not_allergenCount int
+	var not_badheathCount int
+	var not_bloodfatCount int
+	var not_cardioCount int
+	var personCount int
+
+	for _, file := range files {
+		users, err := tools.ReadExcel("./" + file)
+		if err != nil {
+			logrus.Errorf("Err:%s\n", err)
+		} else {
+			if len(users) > 0 {
+				if sex != "" {
+					users = getUsersBySex(sex, users)
+				}
+
+				//按年龄范围取出所有用户信息
+				if age_s != "" {
+					users = getUsersByAge(age_s, age_h, users)
+				}
+				//统计总人数
+				personCount = personCount + len(users)
+
+				for _, uu := range users {
+					if uu.Allergen == "无" {
+						not_allergenCount++
+					} else {
+						allergenCount++
+					}
+					if uu.Heart != "良好" {
+						cardioCount++
+					} else {
+						not_cardioCount++
+					}
+					if uu.BadHabits != "无" {
+						not_badheathCount++
+					} else {
+						badheathCount++
+					}
+
+					if uu.BloddFat != "正常" {
+						not_bloodfatCount++
+					} else {
+						bloodfatCount++
+					}
+				}
+			}
+		}
+
+	}
+	excelUsersResults.PersonCount = personCount
+	excelUsersResults.Allergen = allergenCount
+	excelUsersResults.Badheath = badheathCount
+	excelUsersResults.Bloodfat = bloodfatCount
+	excelUsersResults.Cardio = cardioCount
+	excelUsersResults.Not_allergen = not_allergenCount
+	excelUsersResults.Not_badheath = not_badheathCount
+	excelUsersResults.Not_bloodfat = not_bloodfatCount
+	excelUsersResults.Not_cardio = not_cardioCount
+	g.JSON(http.StatusOK, excelUsersResults)
+
+}
+
 func GetExcelUsers(g *gin.Context) {
 
 	excelUsersResults := ExcelUsersResults{}
@@ -67,7 +144,10 @@ func GetExcelUsers(g *gin.Context) {
 	if filePath == "" {
 		g.JSON(http.StatusBadRequest, gin.H{"err msg": "filepath is null"})
 	} else {
-		users := tools.ReadExcel(filePath)
+		users, err := tools.ReadExcel(filePath)
+		if err != nil {
+			logrus.Errorf("Err:%s\n", err)
+		}
 		excelUsersResults.TotalUserCount = len(users)
 
 		if sex != "" {
