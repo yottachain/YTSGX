@@ -67,6 +67,8 @@ func GetAllAuthExcelUsers(g *gin.Context) {
 
 	for _, file := range files {
 		users, err := tools.ReadExcel("./" + file)
+		//统计总人数
+		personCount = personCount + len(users)
 		if err != nil {
 			logrus.Errorf("Err:%s\n", err)
 		} else {
@@ -79,9 +81,6 @@ func GetAllAuthExcelUsers(g *gin.Context) {
 				if age_s != "" {
 					users = getUsersByAge(age_s, age_h, users)
 				}
-				//统计总人数
-				personCount = personCount + len(users)
-
 				for _, uu := range users {
 					if uu.Allergen == "无" {
 						not_allergenCount++
