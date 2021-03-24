@@ -24,15 +24,15 @@ import (
 )
 
 type ExcelUsersResults struct {
-	Allergen       int
-	Badheath       int
-	Bloodfat       int
-	Cardio         int
-	Not_allergen   int
-	Not_badheath   int
-	Not_bloodfat   int
-	Not_cardio     int
-	PersonCount    int
+	Allergen     int
+	Badheath     int
+	Bloodfat     int
+	Cardio       int
+	Not_allergen int
+	Not_badheath int
+	Not_bloodfat int
+	Not_cardio   int
+	//PersonCount    int
 	TotalUserCount int
 }
 
@@ -108,7 +108,7 @@ func GetAllAuthExcelUsers(g *gin.Context) {
 		}
 
 	}
-	excelUsersResults.PersonCount = personCount
+	excelUsersResults.TotalUserCount = personCount
 	excelUsersResults.Allergen = allergenCount
 	excelUsersResults.Badheath = badheathCount
 	excelUsersResults.Bloodfat = bloodfatCount
@@ -187,7 +187,7 @@ func GetExcelUsers(g *gin.Context) {
 		personCount = len(users)
 		fmt.Print(users)
 
-		excelUsersResults.PersonCount = personCount
+		excelUsersResults.TotalUserCount = personCount
 		excelUsersResults.Allergen = allergenCount
 		excelUsersResults.Badheath = badheathCount
 		excelUsersResults.Bloodfat = bloodfatCount
