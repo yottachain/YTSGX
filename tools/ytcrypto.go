@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"os"
+	"strings"
 
 	ecrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/mr-tron/base58"
@@ -137,4 +138,25 @@ type User struct {
 	Num        uint32
 	PrivateKey string
 	PublicKey  string
+}
+
+func CreateStorageDirectory() {
+	directory := "./storage/share"
+	s, err := os.Stat(directory)
+	if err != nil {
+		if !os.IsExist(err) {
+			err = os.MkdirAll(directory, os.ModePerm)
+			if err != nil {
+				logrus.Errorf("err1:%s\n", err)
+			}
+		} else {
+			logrus.Errorf("err2:%s\n", err)
+		}
+	} else {
+		if !s.IsDir() {
+		}
+	}
+	if !strings.HasSuffix(directory, "/") {
+		directory = directory + "/"
+	}
 }
