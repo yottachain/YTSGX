@@ -22,7 +22,7 @@ func DownBlock(userName, bucketName, fileName string, blockNum int) ([]byte, err
 		Transport: tr,
 	}
 	str2 := fmt.Sprintf("%d", blockNum)
-	resp, err := c.Get("https://39.108.113.193:8080/api/v1/getBlockForSGX?userName=" + userName + "&bucketName=" + bucketName + "&fileName=" + fileName + "&blockNum=" + str2)
+	resp, err := c.Get("http://localhost:8080/api/v1/getBlockForSGX?userName=" + userName + "&bucketName=" + bucketName + "&fileName=" + fileName + "&blockNum=" + str2)
 	if err != nil {
 		return nil, err
 	} else {
