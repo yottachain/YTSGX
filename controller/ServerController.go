@@ -531,9 +531,12 @@ func DownloadFileForSGX(g *gin.Context) {
 	}
 	defer f.Close()
 	//write := bufio.NewWriter(f)
+	logrus.Infof("blockNum: %s", blockNum)
 
 	for blockNum != -1 {
 		data, err := s3server.DownBlock(userName, bucketName, fileName, blockNum)
+		logrus.Infof("err: %d", err)
+		logrus.Infof("data: %s", data)
 		if err != nil {
 			blockNum = -1
 			g.JSON(http.StatusAccepted, gin.H{"Msg": "[" + fileName + "] download is failure ."})
