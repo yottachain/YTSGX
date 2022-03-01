@@ -539,7 +539,7 @@ func DownloadFileForSGX(g *gin.Context) {
 		logrus.Infof("data: %s", data)
 		if err != nil {
 			blockNum = -1
-			g.JSON(http.StatusAccepted, gin.H{"Msg": "[" + fileName + "] download is failure ."})
+			g.JSON(http.StatusAccepted, gin.H{"Msg": "[" + fileName + "] first download is failure ."})
 			return
 		} else {
 			if len(data) > 0 {
@@ -549,7 +549,7 @@ func DownloadFileForSGX(g *gin.Context) {
 
 				if err1 != nil {
 					fmt.Println(err1)
-					g.JSON(http.StatusAccepted, gin.H{"Msg": "[" + fileName + "] download is failure ."})
+					g.JSON(http.StatusAccepted, gin.H{"Msg": "[" + fileName + "] second download is failure ."})
 					return
 				} else {
 					blockNum++
