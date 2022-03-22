@@ -2,10 +2,11 @@ package main
 
 import (
 	"flag"
-	"github.com/yottachain/YTSGX/tools"
 	"os/exec"
 	"runtime"
 	"time"
+
+	"github.com/yottachain/YTSGX/tools"
 
 	"github.com/sirupsen/logrus"
 	"github.com/yottachain/YTSGX/routers"

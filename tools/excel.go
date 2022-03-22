@@ -2,11 +2,12 @@ package tools
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
 )
@@ -36,7 +37,9 @@ func ReadExcel(filePath string) ([]ExcelUser, error) {
 
 		var users []ExcelUser
 		for n, row := range rows {
-			if n >= 2 {
+			//fmt.Printf("%v\n", n)
+			//fmt.Printf("%v", rows)
+			if n >= 1 {
 				excelUser := ExcelUser{}
 				excelUser.Sex = row[0]
 				excelUser.Age = row[1]

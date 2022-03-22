@@ -7,6 +7,7 @@ import (
 	"crypto/md5"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"io"
 	"math/rand"
 	"time"
@@ -63,11 +64,14 @@ func (self *EncryptedBlock) Decrypt(key *Key) ([]byte, error) {
 		return nil, errors.New("KeyNumber err")
 	}
 	bs := key.Decrypt(self.KEU)
+	fmt.Printf("bs: %s", bs)
 	length := len(self.DATA)
+	fmt.Printf("length: %s", length)
 	if length%16 > 0 {
 		return nil, errors.New("data err")
 	}
 	block, err := aes.NewCipher(bs)
+	fmt.Printf("block: %s", block)
 	if err != nil {
 		return nil, err
 	}
@@ -79,6 +83,7 @@ func (self *EncryptedBlock) Decrypt(key *Key) ([]byte, error) {
 
 func (self *EncryptedBlock) Decode(key *Key, writer io.Writer) error {
 	pdata, err := self.Decrypt(key)
+	fmt.Printf("err: %s", err)
 	if err != nil {
 		return errors.New("Decrypt err")
 	}

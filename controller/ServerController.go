@@ -26,12 +26,12 @@ import (
 type ExcelUsersResults struct {
 	Allergen     int
 	Badheath     int
-	Bloodfat     int
 	Cardio       int
+	Bloodfat     int
 	Not_allergen int
 	Not_badheath int
-	Not_bloodfat int
 	Not_cardio   int
+	Not_bloodfat int
 	//PersonCount    int
 	TotalUserCount int
 }
@@ -69,6 +69,7 @@ func GetAllAuthExcelUsers(g *gin.Context) {
 		users, err := tools.ReadExcel("./" + file)
 		//统计总人数
 		personCount = personCount + len(users)
+		fmt.Printf("\npersonCount: %d\n", personCount)
 		if err != nil {
 			logrus.Errorf("Err:%s\n", err)
 		} else {
@@ -87,18 +88,18 @@ func GetAllAuthExcelUsers(g *gin.Context) {
 					} else {
 						allergenCount++
 					}
-					if uu.Heart != "良好" {
-						cardioCount++
-					} else {
+					if uu.Heart == "良好" {
 						not_cardioCount++
+					} else {
+						cardioCount++
 					}
-					if uu.BadHabits != "无" {
+					if uu.BadHabits == "无" {
 						not_badheathCount++
 					} else {
 						badheathCount++
 					}
 
-					if uu.BloddFat != "正常" {
+					if uu.BloddFat == "正常" {
 						not_bloodfatCount++
 					} else {
 						bloodfatCount++
@@ -117,6 +118,7 @@ func GetAllAuthExcelUsers(g *gin.Context) {
 	excelUsersResults.Not_badheath = not_badheathCount
 	excelUsersResults.Not_bloodfat = not_bloodfatCount
 	excelUsersResults.Not_cardio = not_cardioCount
+	fmt.Printf("excelUserResults: %+v", excelUsersResults)
 	g.JSON(http.StatusOK, excelUsersResults)
 
 }
@@ -166,18 +168,18 @@ func GetExcelUsers(g *gin.Context) {
 			} else {
 				allergenCount++
 			}
-			if uu.Heart != "良好" {
-				cardioCount++
-			} else {
+			if uu.Heart == "良好" {
 				not_cardioCount++
+			} else {
+				cardioCount++
 			}
-			if uu.BadHabits != "无" {
+			if uu.BadHabits == "无" {
 				not_badheathCount++
 			} else {
 				badheathCount++
 			}
 
-			if uu.BloddFat != "正常" {
+			if uu.BloddFat == "正常" {
 				not_bloodfatCount++
 			} else {
 				bloodfatCount++
@@ -269,7 +271,12 @@ func UpdateUserInfo(g *gin.Context) {
 }
 
 func GetPubKey(g *gin.Context) {
-	userName := g.Query("userName")
+	//userName := g.Query("userName")
+	userName, ok := g.GetQuery("userName")
+	if !ok {
+		logrus.Errorf("need parameter userName.")
+		return
+	}
 	priKey, pubKey := tools.CreateKey()
 	//priKey := g.Query("privateKey")
 	//pubKey := g.Query("publicKey")
@@ -509,6 +516,7 @@ func DownloadFileForSGX(g *gin.Context) {
 	blockNum = 0
 
 	key, err := sgxaes.NewKey(user.PrivateKey, user.Num)
+	//fmt.Printf("key: %s", key)
 	if err != nil {
 
 	}
@@ -531,12 +539,12 @@ func DownloadFileForSGX(g *gin.Context) {
 	}
 	defer f.Close()
 	//write := bufio.NewWriter(f)
-	logrus.Infof("blockNum: %s", blockNum)
+	//logrus.Infof("blockNum: %d", blockNum)
 
 	for blockNum != -1 {
 		data, err := s3server.DownBlock(userName, bucketName, fileName, blockNum)
-		logrus.Infof("err: %d", err)
-		logrus.Infof("data: %s", data)
+		//logrus.Infof("err: %d", err)
+		//logrus.Infof("data: %s", data)
 		if err != nil {
 			blockNum = -1
 			g.JSON(http.StatusAccepted, gin.H{"Msg": "[" + fileName + "] first download is failure ."})
@@ -545,10 +553,11 @@ func DownloadFileForSGX(g *gin.Context) {
 			if len(data) > 0 {
 
 				block := sgxaes.NewEncryptedBlock(data)
+				//fmt.Printf("block: %d", block)
 				err1 := block.Decode(key, f)
 
 				if err1 != nil {
-					fmt.Println(err1)
+					//fmt.Println(err1)
 					g.JSON(http.StatusAccepted, gin.H{"Msg": "[" + fileName + "] second download is failure ."})
 					return
 				} else {
