@@ -25,12 +25,12 @@ import (
 
 type ExcelUsersResults struct {
 	Allergen     int
-	Badheath     int
 	Cardio       int
+	Badheath     int
 	Bloodfat     int
 	Not_allergen int
-	Not_badheath int
 	Not_cardio   int
+	Not_badheath int
 	Not_bloodfat int
 	//PersonCount    int
 	TotalUserCount int
@@ -275,6 +275,7 @@ func GetPubKey(g *gin.Context) {
 	userName, ok := g.GetQuery("userName")
 	if !ok {
 		logrus.Errorf("need parameter userName.")
+		g.JSON(http.StatusBadRequest, gin.H{"errMsg": "need parameter userName."})
 		return
 	}
 	priKey, pubKey := tools.CreateKey()
